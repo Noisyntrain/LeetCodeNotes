@@ -209,8 +209,9 @@ class Solution:
   
 
 * 学到的点：
-  * 代码可以写的更加简洁
-
+  
+* 代码可以写的更加简洁
+  
 * Java 
 
 * ```java
@@ -259,4 +260,255 @@ class Solution:
   * java中新class对象需要关键字 new, python 则不需要
 
     
+## Apr 22nd
+
+### Q4
+
+* python3 中使用**int**将一个数字转化为整数
+* 在同时有两个条件需要满足的时候，可以先假设第一个条件满足了，而后依据第二个条件的要求更改第一个条件中具体变量的取值
+* 先考虑一般情况 再考虑特殊情况
+
+
+
+### Q5
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        reslut_list = ""
+        tmp_list = ""
+        if len(s) < 2:
+            return s
+        for i in range(len(s)-1):
+            #考虑字符串里没有相同元素情况
+            tmp_list = ""
+            tmp_list=tmp_list+s[i]
+            #偶回文串
+            if s[i] == s[i+1]:
+                index = 1
+                while((i-index)>-1 and (i+1+index)<len(s)):
+                    # if the current character is not same as the corresponding character on the other side
+                    if(s[i-index]!=s[i+1+index]):
+                        break
+                    index +=1
+                tmp_list = s[i-index+1:i+1+index]
+            #需考虑两种都满足
+            if len(reslut_list)<len(tmp_list):
+                reslut_list = tmp_list
+                
+            #奇回文串
+            if i+2<len(s):
+                if s[i] == s[i+2]:
+                    index = 1
+                    while((i-index)>-1 and (i+2+index)<len(s)):
+                        if(s[i-index]!=s[i+2+index]):
+                            break
+                        index+=1
+                    tmp_list = s[i-index+1:i+2+index]
+            if len(reslut_list)<len(tmp_list):
+                reslut_list = tmp_list
+        result = str(reslut_list)
+        if len(reslut_list)==0:
+            result = ""          
+        return result
+```
+
+
+
+### Q6
+
+* 我的解法
+
+```python
+class Solution:
+    def convert(self, s: str, numRows: int) -> str:
+        if numRows ==1 :
+            return s
+        z_shape_list = []
+        # if cur_mode == 0, then goes down, if cur_mode == 1, then goes diagonal
+        cur_mode = 0
+        j = 0
+        res_str = ""
+        for i in range(numRows):
+            z_shape_list.append([])
+        for i in range(len(s)):
+            z_shape_list[j].append(s[i])
+            if j == numRows -1 :
+                cur_mode = 1
+            elif j == 0:
+                cur_mode = 0
+            if cur_mode == 0:
+                j += 1
+            else:
+                j -= 1
+        for i in range(numRows):
+            for j in z_shape_list[i]:
+                res_str+=j
+            #res_str += str(z_shape_list[i])
+        return res_str
+        
+```
+
+* 大佬的解法
+
+* ```java
+  class Solution {
+      public String convert(String s, int numRows) {
+  
+          if(numRows == 1) return s;
+          int[] rowIdx = new int[numRows];
+          char[] chars = new char[s.length()];
+          int n = 0;
+          int burketSize = numRows * 2 - 2;
+          int burketNum = chars.length / burketSize; 
+          int rem = chars.length % burketSize;
+          for(int i = 1; i < numRows; i ++){
+          	int flag = i == 1 ? 1 : 2;
+          	n = flag * burketNum + (rem >= i ? ( 1 + (burketSize - rem + 1 < i ? 1 : 0)) : 0);
+          	rowIdx[i] = rowIdx[i-1] + n;
+          }
+          int flag = -1;
+          int curRow = 0;
+          for(char c : s.toCharArray()){
+          	chars[rowIdx[curRow]] = c;
+          	rowIdx[curRow] = rowIdx[curRow] + 1;
+          	 if (curRow == 0 || curRow == numRows - 1) flag = -flag;
+               curRow += flag;
+          }
+          return new String(chars);
+      }
+  }
+  ```
+
+### Q7
+
+* 我的解法：
+
+```python
+class Solution:
+    def reverse(self, x: int) -> int:
+        tmp_str = str(x)
+        print(tmp_str[0])
+        cur_str = ""
+        i  = len(tmp_str)-1
+        while(i>-1):
+            if(i == len(tmp_str) and tmp[i] == 0):
+                continue
+            cur_str+=tmp_str[i]
+            i -= 1
+            if (tmp_str[i] == "-"):
+                #print("minus here")
+                cur_str = "-"+ cur_str
+                break
+        result = int(cur_str)
+        if (result >  2147483647 or result < -2147483648 ):
+            return 0
+        #print(result)
+        return result
+```
+
+* 大佬的
+
+```java
+public int reverse(int x) {
+        long n = 0;
+        while(x != 0) {
+            n = n*10 + x%10;
+            x = x/10;
+        }
+        return (int)n==n? (int)n:0;
+    }
+```
+
+```c
+int reverse(int x)
+{
+    int max = 0x7fffffff, min = 0x80000000;//int的最大值最小值
+    long rs = 0;//用long类型判断溢出
+    for(;x;rs = rs*10+x%10,x/=10);//逆序，正负通吃，不用单独考虑负值
+    return rs>max||rs<min?0:rs;//超了最大值低于最小值就返回0
+}
+```
+
+
+
+### Question 8
+
+```python
+class Solution:
+    def myAtoi(self, str: str) -> int:
+        #空输入的检测
+        tmp_str = ""
+        marker_num_start = False
+        marker_sign_appear = False
+        for i in str:
+            #print(i)
+            if i ==" " and marker_num_start == True:
+                if len(tmp_str) == 0 or self.is_sign(tmp_str) == True:
+                    return 0
+                break
+                return int(tmp_str)
+            if i != " ":
+                # the string strats with a non number and not a sign symbol
+                if self.is_sign(i)==False and self.is_num(i) == False and marker_num_start == False:
+                    return 0
+                # the string strats with a sign
+                if self.is_num(i) == False:
+                    if marker_num_start == True:
+                        if len(tmp_str) == 0 or self.is_sign(tmp_str) == True:
+                            return 0
+                        break
+                        return int(tmp_str)
+                    if self.is_sign(i) and marker_sign_appear == False:
+                        marker_sign_appear = True
+                    else:
+                        if len(tmp_str) == 0 or self.is_sign(tmp_str) == True:
+                            return 0
+                        break
+                        return int(tmp_str)
+                # entering this line means that the current character is a number
+                marker_num_start = True
+                tmp_str+=i
+        if len(tmp_str) == 0 or self.is_sign(tmp_str) == True:
+            return 0
+        tmp_int = int(tmp_str)
+        if tmp_int > 2147483647:
+            return 2147483647
+        if tmp_int < -2147483648:
+            return -2147483648
+        return tmp_int    
+    def is_num(self,x):
+        if(x<"0" or x>"9"):
+            return False
+        return True
+    def is_sign(self,x):
+        if x!="+" and x!="-":
+            return False
+        return True
+```
+
+
+
+
+
+
+
+### Question 9
+
+```python
+def isPalindrome(x):
+    if x < 0 :
+        return False
+    tmp_str = str(x)
+    i = len(tmp_str)-1
+    j = 0
+    #未考虑到i-j=1的情况两个数字不同
+    while(i-j>1):
+        if tmp_str[i]!=tmp_str[j]:
+            return False
+        i -= 1
+        j += 1
+    return True
+```
+
 
